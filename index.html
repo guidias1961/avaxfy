@@ -9,184 +9,55 @@
   <!-- Ethers.js -->
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <style>
-    /* RESET & BASE */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      display: flex; height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      background: #0d0d0d; color: #e0e0e0;
-      overflow: hidden;
-    }
-
-    /* SIDEBAR */
-    #sidebar {
-      width: 240px; padding: 20px;
-      background: rgba(20,20,20,0.9);
-      backdrop-filter: blur(8px);
-      display: flex; flex-direction: column; gap: 20px;
-      border-right: 1px solid #222;
-    }
-    #sidebar h1 { font-size: 1.8rem; color: #e84142; }
-    #sidebar nav a {
-      display: block; padding: 10px 0;
-      color: #bbb; cursor: pointer;
-      text-decoration: none; transition: color .2s;
-    }
-    #sidebar nav a.active,
-    #sidebar nav a:hover {
-      color: #e84142;
-    }
-    #connectWallet {
-      margin-top: auto; padding: 10px;
-      background: #e84142; border: none; color: #fff;
-      font-weight: bold; border-radius: 4px;
-      cursor: pointer; transition: background .2s;
-    }
-    #connectWallet:hover { background: #b81b23; }
-    #walletAddress {
-      font-size: 0.8rem; margin-top: 5px;
-      word-break: break-all;
-    }
-
-    /* MAIN & SEARCH */
-    #main {
-      flex: 1; display: flex; flex-direction: column;
-    }
-    header {
-      padding: 20px; background: rgba(20,20,20,0.9);
-      border-bottom: 1px solid #222;
-    }
-    #searchBar {
-      width: 100%; padding: 10px 15px;
-      background: #111; border: none; color: #eee;
-      font-size: 1rem; border-radius: 4px;
-    }
-    #contentArea {
-      flex: 1; overflow-y: auto; padding: 20px;
-      background: #121212; padding-bottom: 100px;
-    }
-
-    /* TRACK LIST */
-    .track {
-      display: flex; align-items: center; gap: 15px;
-      padding: 10px; border-radius: 6px; margin-bottom: 15px;
-      cursor: pointer; transition: background .2s;
-    }
-    .track:hover { background: rgba(232,65,66,0.1); }
-    .track img {
-      width: 50px; height: 50px; object-fit: cover;
-      border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-    .track-info { flex: 1; }
-    .track-info span { display: block; line-height: 1.2; }
-    .track-info span:first-child { font-weight: bold; }
-    .track-info .total-supported {
-      font-size: 0.85rem; color: #aaa; margin-top: 4px;
-    }
-    .rank {
-      font-size: 0.9rem; width: 24px; text-align: center;
-      color: #e84142; font-weight: bold;
-    }
-    .favorite-icon {
-      font-size: 24px; color: #e84142;
-      cursor: pointer; user-select: none;
-    }
-    .support-btn, .view-supporters-btn {
-      background: #e84142; border: none; color: #fff;
-      padding: 6px 10px; border-radius: 4px;
-      cursor: pointer; font-size: 0.8rem;
-      transition: background .2s; margin-left: 5px;
-    }
-    .support-btn:hover, .view-supporters-btn:hover {
-      background: #b81b23;
-    }
-
-    /* PLAYER BAR */
-    #playerBar {
-      position: fixed; bottom: 0; left: 0;
-      width: 100%; height: 80px;
-      background: rgba(20,20,20,0.8);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid #222;
-      display: flex; align-items: center;
-      padding: 0 20px; gap: 20px;
-    }
-    #currentCover {
-      width: 60px; height: 60px;
-      border-radius: 6px; object-fit: cover;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.7);
-    }
-    #playerControls {
-      flex: 1; display: flex; align-items: center; gap: 20px;
-    }
-    #playerControls button {
-      background: none; border: none;
-      font-size: 28px; color: #eee;
-      cursor: pointer; transition: transform .15s, color .15s;
-    }
-    #playerControls button:hover {
-      transform: scale(1.2); color: #e84142;
-    }
-    .progress-container {
-      flex: 1; display: flex; flex-direction: column; gap: 4px;
-    }
-    input[type="range"] {
-      -webkit-appearance: none; width: 100%; height: 4px;
-      background: #333; border-radius: 2px; outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 12px; height: 12px;
-      border-radius: 50%; background: #e84142;
-      box-shadow: 0 0 6px rgba(232,65,66,0.7);
-      cursor: pointer;
-    }
-    .time-display {
-      display: flex; justify-content: space-between;
-      font-size: 11px; color: #888;
-    }
-    #volume { width: 100px; }
-    #trackInfo {
-      display: flex; flex-direction: column; align-items: flex-end;
-      gap: 4px; max-width: 200px;
-    }
-    #currentTitle { font-weight: bold; color: #fff; }
-    #currentArtist { font-size: 0.85rem; color: #aaa; }
-
-    /* MODALS */
-    .modal-backdrop {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none; align-items: center; justify-content: center;
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal {
-      background: #171717; padding: 30px; border-radius: 8px;
-      width: 320px; display: flex; flex-direction: column; gap: 15px;
-    }
-    .modal h2 { color: #e84142; margin-bottom: 10px; }
-    .modal input[type="text"],
-    .modal input[type="file"],
-    .modal input[type="number"] {
-      padding: 8px; background: #121212; border: none;
-      border-radius: 4px; color: #eee;
-    }
-    .modal button {
-      padding: 10px; border: none; border-radius: 4px;
-      cursor: pointer; transition: background .2s;
-    }
-    .modal button.confirm { background: #e84142; color: #fff; }
-    .modal button.confirm:hover { background: #b81b23; }
-    .modal button.cancel { background: #333; color: #eee; }
-
-    /* SUPPORTERS TABLE */
-    #supportersTable {
-      width: 100%; border-collapse: collapse; margin-top: 10px;
-    }
-    #supportersTable th, #supportersTable td {
-      border: 1px solid #333; padding: 6px;
-      font-size: 0.85rem; text-align: left;
-    }
-    #supportersTable th { background: #222; }
+    * { margin:0; padding:0; box-sizing:border-box }
+    body { display:flex; height:100vh; font-family:'Segoe UI',sans-serif; background:#0d0d0d; color:#e0e0e0; overflow:hidden }
+    #sidebar { width:240px; padding:20px; background:rgba(20,20,20,0.9); backdrop-filter:blur(8px); display:flex; flex-direction:column; gap:20px; border-right:1px solid#222 }
+    #sidebar h1 { font-size:1.8rem; color:#e84142 }
+    #sidebar nav a { display:block; padding:10px 0; color:#bbb; cursor:pointer; text-decoration:none; transition:color.2s }
+    #sidebar nav a:hover,#sidebar nav a.active { color:#e84142 }
+    #connectWallet { margin-top:auto; padding:10px; background:#e84142; border:none; color:#fff; font-weight:bold; border-radius:4px; cursor:pointer; transition:background.2s }
+    #connectWallet:hover { background:#b81b23 }
+    #walletAddress { font-size:.8rem; margin-top:5px; word-break:break-all }
+    #main { flex:1; display:flex; flex-direction:column }
+    header { padding:20px; background:rgba(20,20,20,0.9); border-bottom:1px solid#222 }
+    #searchBar { width:100%; padding:10px 15px; background:#111; border:none; color:#eee; font-size:1rem; border-radius:4px }
+    #contentArea { flex:1; overflow-y:auto; padding:20px; background:#121212; padding-bottom:100px }
+    .track { display:flex; align-items:center; gap:15px; padding:10px; border-radius:6px; margin-bottom:15px; cursor:pointer; transition:background.2s }
+    .track:hover { background:rgba(232,65,66,0.1) }
+    .track img { width:50px; height:50px; object-fit:cover; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.5) }
+    .track-info { flex:1 }
+    .track-info span { display:block; line-height:1.2 }
+    .track-info span:first-child { font-weight:bold }
+    .track-info .total-supported { font-size:.85rem; color:#aaa; margin-top:4px }
+    .rank { font-size:.9rem; width:24px; text-align:center; color:#e84142; font-weight:bold }
+    .favorite-icon { font-size:24px; color:#e84142; cursor:pointer; user-select:none }
+    .support-btn,.view-supporters-btn { background:#e84142; border:none; color:#fff; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:.8rem; margin-left:5px; transition:background.2s }
+    .support-btn:hover,.view-supporters-btn:hover { background:#b81b23 }
+    #playerBar { position:fixed; bottom:0; left:0; width:100%; height:80px; background:rgba(20,20,20,0.8); backdrop-filter:blur(10px); border-top:1px solid#222; display:flex; align-items:center; padding:0 20px; gap:20px }
+    #currentCover { width:60px; height:60px; border-radius:6px; object-fit:cover; box-shadow:0 4px 10px rgba(0,0,0,0.7) }
+    #playerControls { flex:1; display:flex; align-items:center; gap:20px }
+    #playerControls button { background:none; border:none; font-size:28px; color:#eee; cursor:pointer; transition:transform.15s,color.15s }
+    #playerControls button:hover { transform:scale(1.2); color:#e84142 }
+    .progress-container { flex:1; display:flex; flex-direction:column; gap:4px }
+    input[type=range] { -webkit-appearance:none; width:100%; height:4px; background:#333; border-radius:2px; outline:none }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#e84142; box-shadow:0 0 6px rgba(232,65,66,0.7); cursor:pointer }
+    .time-display { display:flex; justify-content:space-between; font-size:11px; color:#888 }
+    #volume { width:100px }
+    #trackInfo { display:flex; flex-direction:column; align-items:flex-end; gap:4px; max-width:200px }
+    #currentTitle { font-weight:bold; color:#fff }
+    #currentArtist { font-size:.85rem; color:#aaa }
+    .modal-backdrop { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center }
+    .modal-backdrop.active { display:flex }
+    .modal { background:#171717; padding:30px; border-radius:8px; width:320px; display:flex; flex-direction:column; gap:15px }
+    .modal h2 { color:#e84142; margin-bottom:10px }
+    .modal input[type=text],.modal input[type=file],.modal input[type=number] { padding:8px; background:#121212; border:none; border-radius:4px; color:#eee }
+    .modal button { padding:10px; border:none; border-radius:4px; cursor:pointer; transition:background.2s }
+    .modal button.confirm { background:#e84142; color:#fff }
+    .modal button.confirm:hover { background:#b81b23 }
+    .modal button.cancel { background:#333; color:#eee }
+    #supportersTable { width:100%; border-collapse:collapse; margin-top:10px }
+    #supportersTable th,#supportersTable td { border:1px solid#333; padding:6px; font-size:.85rem; text-align:left }
+    #supportersTable th { background:#222 }
   </style>
 </head>
 <body>
@@ -208,14 +79,11 @@
     <div id="contentArea"></div>
   </div>
 
-  <!-- PLAYER BAR -->
   <div id="playerBar">
     <img id="currentCover" src="" alt="Cover">
     <div id="playerControls">
       <button onclick="prevTrack()"><span class="material-icons">skip_previous</span></button>
-      <button onclick="togglePlay()" id="playPause">
-        <span class="material-icons">play_arrow</span>
-      </button>
+      <button id="playPause" onclick="togglePlay()"><span class="material-icons">play_arrow</span></button>
       <button onclick="nextTrack()"><span class="material-icons">skip_next</span></button>
       <div class="progress-container">
         <input id="progress" type="range" min="0" max="100" step="0.1" value="0"
@@ -234,44 +102,36 @@
     </div>
   </div>
 
-  <!-- UPLOAD MODAL -->
   <div id="uploadModal" class="modal-backdrop">
     <div class="modal">
       <h2>Upload Your Track</h2>
-      <input type="text" id="trackTitle" placeholder="Track Title" required>
-      <input type="text" id="trackArtist" placeholder="Artist Name" required>
-      <input type="file" id="trackFile" accept="audio/*" required>
-      <input type="file" id="coverFile" accept="image/*" required>
-      <input type="text" id="supportWallet" placeholder="Your support wallet" required>
-      <button class="confirm" onclick="uploadTrack(event)">Pay & Upload (0.1 AVAX)</button>
-      <button class="cancel" id="cancelUpload">Cancel</button>
+      <input type="text" id="trackTitle" placeholder="Track Title">
+      <input type="text" id="trackArtist" placeholder="Artist Name">
+      <input type="file" id="trackFile" accept="audio/*">
+      <input type="file" id="coverFile" accept="image/*">
+      <input type="text" id="supportWallet" placeholder="Your support wallet">
+      <button class="confirm" onclick="uploadTrack()">Pay & Upload (0.1 AVAX)</button>
+      <button class="cancel" onclick="toggleModal('uploadModal', false)">Cancel</button>
     </div>
   </div>
 
-  <!-- SUPPORT MODAL -->
   <div id="supportModal" class="modal-backdrop">
     <div class="modal">
       <h2>Support</h2>
-      <label>Amount:</label>
-      <div>
-        <label><input type="radio" name="supportAmt" value="0.1" checked>0.1 AVAX</label>
-        <label><input type="radio" name="supportAmt" value="0.5">0.5 AVAX</label>
-        <label><input type="radio" name="supportAmt" value="custom">Custom</label>
-      </div>
+      <label><input type="radio" name="supportAmt" value="0.1" checked>0.1 AVAX</label>
+      <label><input type="radio" name="supportAmt" value="0.5">0.5 AVAX</label>
+      <label><input type="radio" name="supportAmt" value="custom">Custom</label>
       <input id="customSupportAmt" type="number" placeholder="Enter amount" step="0.0001" min="0">
-      <button class="confirm" onclick="confirmSupport(event)">Send</button>
-      <button class="cancel" onclick="cancelSupport()">Cancel</button>
+      <button class="confirm" onclick="confirmSupport()">Send</button>
+      <button class="cancel" onclick="toggleModal('supportModal', false)">Cancel</button>
     </div>
   </div>
 
-  <!-- SUPPORTERS MODAL -->
   <div id="supportersModal" class="modal-backdrop">
     <div class="modal">
       <h2>Supporters</h2>
       <table id="supportersTable">
-        <thead>
-          <tr><th>Wallet</th><th>Amount (AVAX)</th></tr>
-        </thead>
+        <thead><tr><th>Wallet</th><th>Amount (AVAX)</th></tr></thead>
         <tbody></tbody>
       </table>
       <button class="cancel" onclick="toggleModal('supportersModal', false)">Close</button>
@@ -280,44 +140,27 @@
 
   <audio id="audio"></audio>
 
-  <script>
+  <script type="module">
     const DEFAULT_SUPPORT_WALLET = '0x730c82D501Ec341E376F95b9B5D48a059dABc218';
     const STORAGE_KEY = 'avaxfy_favorites';
+    const SPACE_DID    = 'did:key:z6Mkfzfmr6k4WgvQcFtyKyzsLBGzBLJN2LREYeo4DcmHF4df';
+    const LOGIN_EMAIL  = 'guidias1961@gmail.com';
 
-    let provider, signer, userAccount;
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@storacha/client/dist/index.esm.min.js';
+
+    let provider, signer, userAccount, client;
     let currentSection = 'home';
-    let currentIndex = 0, isSeeking = false;
-    let pendingTrackIndex = null;
+    let tracks = [];
     let favorites = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
-    const tracks = [
-      { title:"AVAX Roadtrip",        artist:"Various", url:"tracks/2010s roadtrip.mp3",    cover:"covers/2010s roadtrip.jpg",    supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"TokenTok Funk",        artist:"Various", url:"tracks/tiktok funk.mp3",         cover:"covers/tiktok funk.jpg",         supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"AVAX Drop (EDM)",      artist:"Various", url:"tracks/edm.mp3",                 cover:"covers/edm.jpg",                 supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Dust Echo Consensus",  artist:"Various", url:"tracks/dust e echoes.mp3",     cover:"covers/dust e echoes.jpg",     supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Genesis Rock",         artist:"Various", url:"tracks/vintage rock.mp3",      cover:"covers/vintage rock.jpg",      supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"TransACtion Trance",   artist:"Various", url:"tracks/trance.mp3",            cover:"covers/trance.jpg",            supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"ElectroNode",          artist:"Various", url:"tracks/Eletronic.mp3",         cover:"covers/Eletronic.jpg",         supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Smoke & Stake Chill",  artist:"Various", url:"tracks/Smoke and Chill.mp3",   cover:"covers/smoke and chill.jpg",   supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Progressive Protocol", artist:"Various", url:"tracks/progressive.mp3",       cover:"covers/progressive.jpg",       supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Chain Reaction",       artist:"Various", url:"tracks/blockchain.mp3",        cover:"covers/blockchain.jpg",        supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Mountain Consensus",   artist:"Various", url:"tracks/mountain.mp3",          cover:"covers/mountain.jpg",          supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] },
-      { title:"Sunset on AVAX",       artist:"Various", url:"tracks/sunset.mp3",            cover:"covers/sunset.jpg",            supportWallet:DEFAULT_SUPPORT_WALLET, supporters:[] }
-    ];
+    (async()=>{
+      client = await createClient();
+      await client.login(LOGIN_EMAIL);
+      await client.setCurrentSpace(SPACE_DID);
+    })();
 
-    // ← NOVAS FUNÇÕES: cálculo e ordenação por suporte
-    function totalSupport(i) {
-      return tracks[i].supporters
-        .reduce((sum,s)=>sum+Number(s.amount), 0);
-    }
-    function sortBySupport(list) {
-      return list.slice()
-        .sort((a,b)=> totalSupport(b) - totalSupport(a));
-    }
-
-    /* CONNECT WALLET */
-    async function connectWallet() {
-      if (!window.ethereum) return alert('Please install MetaMask');
+    async function connectWallet(){
+      if(!window.ethereum) return alert('Please install MetaMask');
       provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send('eth_requestAccounts', []);
       signer = provider.getSigner();
@@ -325,221 +168,146 @@
       document.getElementById('walletAddress').textContent = userAccount;
     }
 
-    /* FORMAT TIME */
-    function formatTime(sec) {
-      const m=Math.floor(sec/60), s=Math.floor(sec%60);
+    function formatTime(sec){
+      const m=Math.floor(sec/60),s=Math.floor(sec%60);
       return `${m}:${s<10?'0':''}${s}`;
     }
 
-    /* RENDER TRACKS (mostra também a posição/rank) */
-    function renderTracks(list) {
-      const area = document.getElementById('contentArea');
-      area.innerHTML = '';
-      list.forEach((idx, pos) => {
-        const t = tracks[idx];
-        const total = totalSupport(idx).toFixed(4);
-        const div = document.createElement('div');
-        div.className = 'track';
-        div.innerHTML = `
+    function totalSupport(t){
+      return t.supporters.reduce((sum,s)=>sum+Number(s.amount),0);
+    }
+    function sortBySupport(a){
+      return a.slice().sort((i,j)=> totalSupport(tracks[j]) - totalSupport(tracks[i]));
+    }
+
+    function showSection(sec){
+      currentSection=sec;
+      document.getElementById('nav-home').classList.toggle('active',sec==='home');
+      document.getElementById('nav-fav').classList.toggle('active',sec==='favorites');
+      filterTracks();
+    }
+    function filterTracks(){
+      const q=document.getElementById('searchBar').value.toLowerCase();
+      const base=currentSection==='favorites'
+        ? tracks.map((_,i)=>i).filter(i=>favorites.includes(i))
+        : tracks.map((_,i)=>i);
+      const filtered=base.filter(i=>{
+        const t=tracks[i];
+        return t.title.toLowerCase().includes(q)||t.artist.toLowerCase().includes(q);
+      });
+      renderTracks(sortBySupport(filtered));
+    }
+    function renderTracks(list){
+      const area=document.getElementById('contentArea');
+      area.innerHTML='';
+      list.forEach((i,pos)=>{
+        const t=tracks[i],tot=totalSupport(t).toFixed(4);
+        const div=document.createElement('div');div.className='track';
+        div.innerHTML=`
           <div class="rank">#${pos+1}</div>
-          <img src="${encodeURI(t.cover)}" alt="Cover">
+          <img src="${t.cover}">
           <div class="track-info">
             <span>${t.title}</span>
             <span>${t.artist}</span>
-            <span class="total-supported">Supported: ${total} AVAX</span>
+            <span class="total-supported">Supported: ${tot} AVAX</span>
           </div>
           <span class="material-icons favorite-icon"
-                onclick="toggleFavorite(${idx}); event.stopPropagation();">
-            ${favorites.includes(idx)?'favorite':'favorite_border'}
+                onclick="toggleFavorite(${i});event.stopPropagation()">
+            ${favorites.includes(i)?'favorite':'favorite_border'}
           </span>
           <button class="support-btn"
-                  onclick="openSupportModal(${idx}); event.stopPropagation();">
+                  onclick="openSupportModal(${i});event.stopPropagation()">
             Support
           </button>
           <button class="view-supporters-btn"
-                  onclick="openSupportersModal(${idx}); event.stopPropagation();">
+                  onclick="openSupportersModal(${i});event.stopPropagation()">
             View Supporters
           </button>`;
-        div.onclick = ()=>playTrack(idx);
+        div.onclick=()=>playTrack(i);
         area.appendChild(div);
       });
     }
-
-    /* NAVIGATION (agora ordena por suporte) */
-    function showSection(sec) {
-      currentSection = sec;
-      document.getElementById('nav-home')
-        .classList.toggle('active', sec==='home');
-      document.getElementById('nav-fav')
-        .classList.toggle('active', sec==='favorites');
-      document.getElementById('searchBar').value = '';
-      const base = sec==='favorites'
-        ? favorites.slice()
-        : tracks.map((_,i)=>i);
-      const ordered = sortBySupport(base);
-      renderTracks(ordered);
-    }
-
-    function filterTracks() {
-      const q = document.getElementById('searchBar')
-                      .value.toLowerCase();
-      const base = currentSection==='favorites'
-        ? favorites.slice()
-        : tracks.map((_,i)=>i);
-      const filtered = base.filter(i=>
-        tracks[i].title.toLowerCase().includes(q) ||
-        tracks[i].artist.toLowerCase().includes(q)
-      );
-      const ordered = sortBySupport(filtered);
-      renderTracks(ordered);
-    }
-
-    function toggleFavorite(idx) {
-      const p = favorites.indexOf(idx);
-      p>=0 ? favorites.splice(p,1) : favorites.push(idx);
-      localStorage.setItem(STORAGE_KEY,
-        JSON.stringify(favorites));
+    function toggleFavorite(i){
+      const p=favorites.indexOf(i);
+      if(p>=0)favorites.splice(p,1);else favorites.push(i);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(favorites));
       showSection(currentSection);
     }
 
-    /* PLAYER */
-    const audio = document.getElementById('audio');
-    function playTrack(i) {
-      currentIndex=i;
-      const t=tracks[i];
-      audio.src=encodeURI(t.url);
-      document.getElementById('currentCover')
-              .src=encodeURI(t.cover);
-      document.getElementById('currentTitle')
-              .textContent=t.title;
-      document.getElementById('currentArtist')
-              .textContent=t.artist;
-      audio.onloadedmetadata=()=>{
-        document.getElementById('totalTime')
-                .textContent=formatTime(audio.duration);
-      };
+    const audio=document.getElementById('audio');
+    let currentIndex=0,isSeeking=false;
+    function playTrack(i){
+      currentIndex=i;const t=tracks[i];
+      audio.src=t.url;
+      document.getElementById('currentCover').src=t.cover;
+      document.getElementById('currentTitle').textContent=t.title;
+      document.getElementById('currentArtist').textContent=t.artist;
+      audio.onloadedmetadata=()=>document.getElementById('totalTime').textContent=formatTime(audio.duration);
       audio.play();
-      document.getElementById('playPause')
-        .innerHTML='<span class="material-icons">pause</span>';
+      document.getElementById('playPause').innerHTML='<span class="material-icons">pause</span>';
     }
-    function togglePlay() {
-      if(audio.paused){
-        audio.play();
-        document.getElementById('playPause')
-          .innerHTML='<span class="material-icons">pause</span>';
-      } else {
-        audio.pause();
-        document.getElementById('playPause')
-          .innerHTML='<span class="material-icons">play_arrow</span>';
-      }
+    function togglePlay(){
+      if(audio.paused){audio.play();document.getElementById('playPause').innerHTML='<span class="material-icons">pause</span>'}
+      else {audio.pause();document.getElementById('playPause').innerHTML='<span class="material-icons">play_arrow</span>'}
     }
-    function prevTrack(){ playTrack((currentIndex-1+tracks.length)%tracks.length); }
-    function nextTrack(){ playTrack((currentIndex+1)%tracks.length); }
+    function prevTrack(){playTrack((currentIndex-1+tracks.length)%tracks.length)}
+    function nextTrack(){playTrack((currentIndex+1)%tracks.length)}
     function seekTrack(v){
-      if(!audio.duration) return;
-      audio.currentTime=(v/100)*audio.duration;
-      document.getElementById('currentTime')
-        .textContent=formatTime(audio.currentTime);
+      if(!audio.duration)return;
+      audio.currentTime=v/100*audio.duration;
+      document.getElementById('currentTime').textContent=formatTime(audio.currentTime);
     }
-    function setVolume(){
-      audio.volume=document.getElementById('volume').value;
-    }
+    function setVolume(){audio.volume=document.getElementById('volume').value}
     audio.ontimeupdate=()=>{
-      if(!isSeeking && audio.duration){
-        const pct=(audio.currentTime/audio.duration)*100;
-        document.getElementById('progress').value=pct;
-        document.getElementById('currentTime')
-          .textContent=formatTime(audio.currentTime);
+      if(!isSeeking&&audio.duration){
+        const p=audio.currentTime/audio.duration*100;
+        document.getElementById('progress').value=p;
+        document.getElementById('currentTime').textContent=formatTime(audio.currentTime);
       }
     };
 
-    /* UPLOAD */
-    document.getElementById('cancelUpload')
-      .onclick=()=>toggleModal('uploadModal',false);
-    function toggleUpload(){
-      if(!signer) return alert('Connect your wallet first');
-      toggleModal('uploadModal',true);
-    }
-    async function uploadTrack(e){
-      e.preventDefault();
+    async function uploadTrack(){
       const title=document.getElementById('trackTitle').value;
       const artist=document.getElementById('trackArtist').value;
       const file=document.getElementById('trackFile').files[0];
       const cover=document.getElementById('coverFile').files[0];
-      const wallet=document.getElementById('supportWallet').value;
-      try{
-        const tx=await signer.sendTransaction({
-          to:DEFAULT_SUPPORT_WALLET,
-          value:ethers.utils.parseEther('0.1')
-        });
-        alert('Waiting confirmation…'); await tx.wait();
-        alert('Uploaded!');
-        const trackURL=URL.createObjectURL(file);
-        const coverURL=URL.createObjectURL(cover);
-        tracks.push({
-          title,artist,url:trackURL,cover:coverURL,
-          supportWallet:wallet,supporters:[]
-        });
-        toggleModal('uploadModal',false);
-        showSection(currentSection);
-      }catch(err){
-        console.error(err); alert('Payment failed.');
-      }
+      const wallet=document.getElementById('supportWallet').value||DEFAULT_SUPPORT_WALLET;
+      await signer.sendTransaction({to:DEFAULT_SUPPORT_WALLET,value:ethers.utils.parseEther('0.1')}).then(tx=>tx.wait());
+      const { cid }=await client.uploadDirectory([file,cover],{ name:title });
+      const trackURL=`https://dweb.link/ipfs/${cid}/${encodeURIComponent(file.name)}`;
+      const coverURL=`https://dweb.link/ipfs/${cid}/${encodeURIComponent(cover.name)}`;
+      tracks.push({ title,artist,url:trackURL,cover:coverURL,supportWallet:wallet,supporters:[] });
+      toggleModal('uploadModal',false);
+      showSection(currentSection);
+      playTrack(tracks.length-1);
     }
 
-    /* SUPPORT */
-    document.getElementById('supportModal')
-      .querySelector('.cancel')
-      .onclick=()=>toggleModal('supportModal',false);
-    function openSupportModal(i){
-      pendingTrackIndex=i;
-      toggleModal('supportModal',true);
-      document.querySelector('input[name="supportAmt"][value="0.1"]').checked=true;
-      document.getElementById('customSupportAmt').value='';
-    }
-    async function confirmSupport(e){
-      e.preventDefault();
-      const form=document.supportForm;
-      let amt=form.supportAmt.value;
-      if(amt==='custom') amt=document.getElementById('customSupportAmt').value;
-      if(!amt||isNaN(amt)||Number(amt)<=0) return alert('Enter valid amount');
+    let pendingTrackIndex;
+    function openSupportModal(i){pendingTrackIndex=i;toggleModal('supportModal',true)}
+    async function confirmSupport(){
+      const sel=document.querySelector('input[name="supportAmt"]:checked').value;
+      let amt=sel==='custom'?document.getElementById('customSupportAmt').value:sel;
+      amt=Number(amt);if(!amt||amt<=0)return alert('Invalid amount');
       const t=tracks[pendingTrackIndex];
-      try{
-        const tx=await signer.sendTransaction({
-          to:t.supportWallet,
-          value:ethers.utils.parseEther(amt)
-        });
-        alert('Sending…'); await tx.wait();
-        alert('Thank you for supporting!');
-        t.supporters.push({ wallet:userAccount, amount:amt });
-        toggleModal('supportModal',false);
-        showSection(currentSection);
-      }catch(err){
-        console.error(err); alert('Support failed.');
-      }
+      await signer.sendTransaction({to:t.supportWallet,value:ethers.utils.parseEther(amt.toString())}).then(tx=>tx.wait());
+      t.supporters.push({ wallet:userAccount, amount:amt });
+      toggleModal('supportModal',false);
+      showSection(currentSection);
     }
-
-    /* VIEW SUPPORTERS */
-    document.getElementById('supportersModal')
-      .querySelector('.cancel')
-      .onclick=()=>toggleModal('supportersModal',false);
     function openSupportersModal(i){
-      const tbody=document.getElementById('supportersTable').querySelector('tbody');
+      const tbody=document.querySelector('#supportersTable tbody');
       tbody.innerHTML='';
       tracks[i].supporters.forEach(s=>{
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${s.wallet}</td><td>${parseFloat(s.amount).toFixed(4)}</td>`;
+        tr.innerHTML=`<td>${s.wallet}</td><td>${s.amount.toFixed(4)}</td>`;
         tbody.appendChild(tr);
       });
       toggleModal('supportersModal',true);
     }
 
-    function toggleModal(id,show){
-      document.getElementById(id).classList.toggle('active',show);
-    }
+    function toggleUpload(){toggleModal('uploadModal',true)}
+    function toggleModal(id,on){document.getElementById(id).classList.toggle('active',on)}
 
-    // INITIALIZE
-    document.supportForm=document.getElementById('supportModal').querySelector('form')||{supportAmt:[]};
     showSection('home');
   </script>
 </body>
