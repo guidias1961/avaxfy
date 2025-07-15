@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Avaxfy – Stream Your Music on Avalanche</title>
-  <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!-- Ethers.js -->
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box }
@@ -15,10 +13,10 @@
     /* SIDEBAR */
     #sidebar { width:240px; padding:20px; background:rgba(20,20,20,0.9); backdrop-filter:blur(8px); display:flex; flex-direction:column; gap:20px; border-right:1px solid #222 }
     #sidebar h1 { font-size:1.8rem; color:#e84142 }
-    #sidebar nav a, #sidebar nav button { display:block; padding:10px 0; color:#bbb; cursor:pointer; text-decoration:none; background:none; border:none; font:inherit; text-align:left; transition:color .2s }
+    #sidebar nav a, #sidebar nav button { display:block; padding:10px 0; color:#bbb; cursor:pointer; background:none; border:none; text-align:left; transition:color .2s }
     #sidebar nav a.active, #sidebar nav a:hover, #sidebar nav button:hover { color:#e84142 }
-    #connectWallet { margin-top:auto; padding:10px; background:#e84142; border:none; color:#fff; font-weight:bold; border-radius:4px; cursor:pointer; transition:background .2s }
-    #connectWallet:hover { background:#b81b23 }
+    #connectWallet { margin-top:auto; padding:10px; background:#e84142; border:none; color:#fff; font-weight:bold; border-radius:4px; cursor:pointer; transition:background .2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #connectWallet.connected { background:#4CAF50; }
     #walletAddress { font-size:.8rem; margin-top:5px; word-break:break-all }
 
     /* MAIN */
@@ -26,7 +24,7 @@
     header { padding:20px; background:rgba(20,20,20,0.9); border-bottom:1px solid #222 }
     #searchBar { width:100%; padding:10px 15px; background:#111; border:none; color:#eee; font-size:1rem; border-radius:4px }
     #contentArea { flex:1; overflow-y:auto; padding:20px; background:#121212; padding-bottom:100px }
-    #contentArea.empty { display:flex; align-items:center; justify-content:center; color:#666; }
+    #contentArea.empty { display:flex; align-items:center; justify-content:center; color:#666 }
 
     /* TRACK LIST */
     .track { display:flex; align-items:center; gap:15px; padding:10px; border-radius:6px; margin-bottom:15px; cursor:pointer; transition:background .2s }
@@ -43,21 +41,6 @@
     .support-btn, .view-supporters-btn { background:#e84142; border:none; color:#fff; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:.8rem; margin-left:5px; transition:background .2s }
     .support-btn:hover, .view-supporters-btn:hover { background:#b81b23 }
 
-    /* PLAYER BAR */
-    #playerBar { position:fixed; bottom:0; left:0; width:100%; height:80px; background:rgba(20,20,20,0.8); backdrop-filter:blur(10px); border-top:1px solid #222; display:flex; align-items:center; padding:0 20px; gap:20px }
-    #currentCover { width:60px; height:60px; border-radius:6px; object-fit:cover; box-shadow:0 4px 10px rgba(0,0,0,0.7) }
-    #playerControls { flex:1; display:flex; align-items:center; gap:20px }
-    #playerControls button { background:none; border:none; font-size:28px; color:#eee; cursor:pointer; transition:transform .15s, color .15s }
-    #playerControls button:hover { transform:scale(1.2); color:#e84142 }
-    .progress-container { flex:1; display:flex; flex-direction:column; gap:4px }
-    input[type=range] { -webkit-appearance:none; width:100%; height:4px; background:#333; border-radius:2px; outline:none }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#e84142; box-shadow:0 0 6px rgba(232,65,66,0.7); cursor:pointer }
-    .time-display { display:flex; justify-content:space-between; font-size:11px; color:#888 }
-    #volume { width:100px }
-    #trackInfo { display:flex; flex-direction:column; align-items:flex-end; gap:4px; max-width:200px }
-    #currentTitle { font-weight:bold; color:#fff }
-    #currentArtist { font-size:.85rem; color:#aaa }
-
     /* MODALS */
     .modal-backdrop { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center }
     .modal-backdrop.active { display:flex }
@@ -69,18 +52,17 @@
     .modal button.confirm:hover { background:#b81b23 }
     .modal button.cancel { background:#333; color:#eee }
 
-    /* SUPPORTERS TABLE */
-    #supportersTable { width:100%; border-collapse:collapse; margin-top:10px }
-    #supportersTable th, #supportersTable td { border:1px solid #333; padding:6px; font-size:.85rem; text-align:left }
-    #supportersTable th { background:#222 }
-
-    /* PAYMENT STATUS */
     #paymentStatus { margin-top:10px; font-size:.9em }
     .payment-success { color:#4CAF50 }
     .payment-error { color:#f44336 }
+
+    #supportersTable { width:100%; border-collapse:collapse; margin-top:10px }
+    #supportersTable th, #supportersTable td { border:1px solid #333; padding:6px; font-size:.85rem; text-align:left }
+    #supportersTable th { background:#222 }
   </style>
 </head>
 <body>
+
   <div id="sidebar">
     <h1>Avaxfy</h1>
     <nav>
@@ -99,29 +81,6 @@
     <div id="contentArea" class="empty">Nenhuma faixa disponível.</div>
   </div>
 
-  <div id="playerBar">
-    <img id="currentCover" src="" alt="Cover">
-    <div id="playerControls">
-      <button onclick="prevTrack()"><span class="material-icons">skip_previous</span></button>
-      <button id="playPause" onclick="togglePlay()"><span class="material-icons">play_arrow</span></button>
-      <button onclick="nextTrack()"><span class="material-icons">skip_next</span></button>
-      <div class="progress-container">
-        <input id="progress" type="range" min="0" max="100" step="0.1" value="0"
-               oninput="seekTrack(this.value)" onchange="seekTrack(this.value)">
-        <div class="time-display">
-          <span id="currentTime">0:00</span>
-          <span id="totalTime">0:00</span>
-        </div>
-      </div>
-      <input id="volume" type="range" min="0" max="1" step="0.01" value="1"
-             oninput="setVolume()">
-    </div>
-    <div id="trackInfo">
-      <span id="currentTitle"></span>
-      <span id="currentArtist"></span>
-    </div>
-  </div>
-
   <!-- UPLOAD MODAL -->
   <div id="uploadModal" class="modal-backdrop">
     <div class="modal">
@@ -132,12 +91,12 @@
       <input type="file" id="trackFile" accept="audio/*" required>
       <input type="file" id="coverFile" accept="image/*">
       <div id="paymentStatus"></div>
-      <button class="confirm" onclick="processUpload()">Pay & Upload (0.1 AVAX)</button>
+      <button class="confirm" onclick="processUpload()">Pay & Upload (0.1 AVAX)</button>
       <button class="cancel" onclick="toggleModal('uploadModal', false)">Cancel</button>
     </div>
   </div>
 
-  <!-- SUPPORT & SUPPORTERS MODALS -->
+  <!-- SUPPORT MODAL -->
   <div id="supportModal" class="modal-backdrop">
     <div class="modal">
       <h2>Support</h2>
@@ -150,6 +109,7 @@
     </div>
   </div>
 
+  <!-- SUPPORTERS MODAL -->
   <div id="supportersModal" class="modal-backdrop">
     <div class="modal">
       <h2>Supporters</h2>
@@ -163,29 +123,49 @@
 
   <audio id="audio"></audio>
 
-  <script>
-    const STORACHA_ENDPOINT = "https://console.storacha.network/space/did:key:z6Mkfzfmr6k4WgvQcFtyKyzsLBGzBLJN2LREYeo4DcmHF4df";
-    const PAYMENT_WALLET   = "0x730c82D501Ec341E376F95b9B5D48a059dABc218";
-    const UPLOAD_FEE       = ethers.utils.parseEther("0.1");
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@storacha/client/dist/index.esm.min.js';
 
-    let provider, signer;
-    let userUploads = JSON.parse(localStorage.getItem('userUploads')) || {};
+    // Configurações
+    const LOGIN_EMAIL    = 'guidias1961@gmail.com';
+    const SPACE_DID      = 'did:key:z6Mkfzfmr6k4WgvQcFtyKyzsLBGzBLJN2LREYeo4DcmHF4df';
+    const PAYMENT_WALLET = '0x730c82D501Ec341E376F95b9B5D48a059dABc218';
+    const UPLOAD_FEE     = ethers.utils.parseEther('0.1');
 
+    let provider, signer, storachaClient;
+    let userUploads = JSON.parse(localStorage.getItem('userUploads')||'{}');
+
+    // Inicializa Storacha
+    (async ()=>{
+      storachaClient = await createClient();
+      await storachaClient.login(LOGIN_EMAIL);
+      await storachaClient.setCurrentSpace(SPACE_DID);
+    })();
+
+    // Conexão MetaMask
     async function connectWallet() {
       if (!window.ethereum) {
         alert('Please install MetaMask!');
-        window.open('https://metamask.io', '_blank');
         return;
       }
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await window.ethereum.request({ method:'eth_requestAccounts' });
       provider = new ethers.providers.Web3Provider(window.ethereum);
       signer   = provider.getSigner();
-      const addr = await signer.getAddress();
+      const addr= await signer.getAddress();
       document.getElementById('walletAddress').textContent = addr;
       const btn = document.getElementById('connectWallet');
-      btn.textContent = 'Connected';
-      btn.style.backgroundColor = '#4CAF50';
+      btn.textContent = addr.slice(0,6)+'…'+addr.slice(-4);
+      btn.classList.add('connected');
     }
+
+    // Expondo funções globais para onclick inline
+    window.connectWallet      = connectWallet;
+    window.toggleUpload       = toggleUpload;
+    window.processUpload      = processUpload;
+    window.toggleModal        = toggleModal;
+    window.confirmSupport     = confirmSupport;
+    window.showSection        = ()=>{};  // stub
+    window.filterTracks       = ()=>{};  // stub
 
     async function toggleUpload() {
       if (!document.getElementById('walletAddress').textContent) {
@@ -195,24 +175,22 @@
     }
 
     function toggleModal(id, show) {
-      const m = document.getElementById(id);
-      m.classList.toggle('active', !!show);
+      document.getElementById(id).classList.toggle('active', !!show);
       if (!show) document.getElementById('paymentStatus').textContent = '';
     }
 
     async function processUpload() {
       const status = document.getElementById('paymentStatus');
-      status.textContent = 'Processing payment...'; status.className = '';
+      status.textContent='Processing payment...'; status.className='';
       try {
         await processPayment();
         const data = await uploadToStoracha();
-        status.textContent = 'Payment and upload successful!'; status.className = 'payment-success';
+        status.textContent='Upload successful!'; status.className='payment-success';
         addTrackToUI(data);
-        setTimeout(()=> toggleModal('uploadModal', false), 2000);
+        setTimeout(()=>toggleModal('uploadModal',false),2000);
       } catch(e) {
         console.error(e);
-        status.textContent = 'Error: ' + e.message;
-        status.className = 'payment-error';
+        status.textContent='Error: '+e.message; status.className='payment-error';
       }
     }
 
@@ -223,60 +201,61 @@
     }
 
     async function uploadToStoracha() {
-      const title  = document.getElementById('trackTitle').value;
-      const artist = document.getElementById('trackArtist').value;
-      const twitterHandle = document.getElementById('twitterHandle').value;
-      const trackFile = document.getElementById('trackFile').files[0];
-      if (!title || !artist || !trackFile) throw new Error('Fill all required fields');
-      const id     = 'avaxfy_' + Date.now();
-      const metadata = { id, title, artist, twitterHandle, supportWallet: await signer.getAddress(), timestamp: new Date().toISOString(), supports: [] };
-      // TODO: integrate real Storacha SDK upload here instead of just console.log
-      console.log('Uploading to Storacha:', STORACHA_ENDPOINT, metadata);
-      userUploads[id] = metadata;
+      const title  = document.getElementById('trackTitle').value.trim();
+      const artist = document.getElementById('trackArtist').value.trim();
+      const twitter= document.getElementById('twitterHandle').value.trim();
+      const trackF = document.getElementById('trackFile').files[0];
+      const coverF = document.getElementById('coverFile').files[0];
+      if (!title||!artist||!trackF) throw new Error('Fill all required fields');
+
+      const { cid } = await storachaClient.uploadDirectory(
+        [trackF, coverF].filter(Boolean),
+        { name: title }
+      );
+
+      const trackURL = `https://dweb.link/ipfs/${cid}/${encodeURIComponent(trackF.name)}`;
+      const coverURL = coverF
+        ? `https://dweb.link/ipfs/${cid}/${encodeURIComponent(coverF.name)}`
+        : '';
+
+      const id   = 'avaxfy_'+Date.now();
+      const meta = { id,title,artist,twitterHandle:twitter||null,trackURL,coverURL,
+                     supportWallet: await signer.getAddress(), timestamp:new Date().toISOString(), supporters:[] };
+
+      userUploads[id] = meta;
       localStorage.setItem('userUploads', JSON.stringify(userUploads));
-      return metadata;
+      return meta;
     }
 
-    function addTrackToUI(track) {
-      document.getElementById('contentArea').classList.remove('empty');
-      const content = document.getElementById('contentArea');
+    function addTrackToUI(t) {
+      const area = document.getElementById('contentArea');
+      area.classList.remove('empty');
       const div = document.createElement('div');
-      div.className = 'track';
-      div.innerHTML = `
+      div.className='track';
+      div.innerHTML=`
         <div class="rank">#${Object.keys(userUploads).length}</div>
-        <img src="https://via.placeholder.com/50" alt="Cover">
+        <img src="${t.coverURL||'https://via.placeholder.com/50'}">
         <div class="track-info">
-          <span>${track.title}</span>
-          <span>${track.artist}</span>
-          ${track.twitterHandle ? `<div class="twitter-handle"><span class="material-icons">tag</span><a href="https://twitter.com/${track.twitterHandle.replace('@','')}" target="_blank">${track.twitterHandle}</a></div>` : ''}
+          <span>${t.title}</span><span>${t.artist}</span>
+          ${t.twitterHandle?`<div class="twitter-handle"><span class="material-icons">tag</span><a href="https://twitter.com/${t.twitterHandle.replace('@','')}" target="_blank">${t.twitterHandle}</a></div>`:``}
           <div class="total-supported">Supported: 0 AVAX</div>
         </div>
         <span class="material-icons favorite-icon">favorite_border</span>
-        <button class="support-btn" onclick="showSupportModal('${track.id}')">Support</button>
-      `;
-      content.prepend(div);
+        <button class="support-btn" onclick="confirmSupport()">Support</button>`;
+      area.prepend(div);
     }
 
     function loadExistingUploads() {
-      if (Object.keys(userUploads).length) {
-        document.getElementById('contentArea').classList.remove('empty');
-      }
+      const area = document.getElementById('contentArea');
+      if (Object.keys(userUploads).length) area.classList.remove('empty');
       Object.values(userUploads).forEach(addTrackToUI);
     }
 
-    function showSupportModal(id) {
-      toggleModal('supportModal', true);
-    }
-
     async function confirmSupport() {
-      alert('Support logic goes here');
-      toggleModal('supportModal', false);
+      alert('Support flow not yet implemented');
     }
 
     window.onload = loadExistingUploads;
-
-    // placeholders de player
-    function prevTrack(){}; function togglePlay(){}; function nextTrack(){}; function seekTrack(){}; function setVolume(){}; function showSection(){}; function filterTracks(){}
   </script>
 </body>
 </html>
