@@ -1,0 +1,24 @@
+{
+  "name": "avaxfy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guidias1961/avaxfy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guidias1961/avaxfy/issues"
+  },
+  "homepage": "https://github.com/guidias1961/avaxfy#readme",
+  "description": "",
+  "dependencies": {
+    "@storacha/client": "^1.4.2",
+    "@web3-storage/w3up-client": "^17.3.0"
+  }
+}

@@ -198,7 +198,6 @@
     // ETHER.JS INITIALIZATION
     // =====================
     async function initializeEthers() {
-      // ethers já incluído estaticamente
       if (typeof ethers === 'undefined') {
         try {
           await loadScript('https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js');
@@ -215,6 +214,8 @@
     // ==============
     // WALLET METHODS
     // ==============
+    const AVALANCHE_CHAIN_ID = '0xA86A';
+
     async function connectWallet() {
       if (!AppState.ethersLoaded) {
         const loaded = await initializeEthers();
@@ -223,17 +224,45 @@
       showLoading('paymentStatus');
       try {
         if (!window.ethereum) throw new Error('MetaMask not installed.');
+
+        // 1) Solicita troca para Avalanche C-Chain
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: AVALANCHE_CHAIN_ID }]
+          });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: AVALANCHE_CHAIN_ID,
+                chainName: 'Avalanche C-Chain',
+                nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+                rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+                blockExplorerUrls: ['https://snowtrace.io/']
+              }]
+            });
+          } else {
+            throw switchError;
+          }
+        }
+
+        // 2) Agora crie provider e signer em Avalanche
         AppState.provider = new ethers.providers.Web3Provider(window.ethereum);
-        await AppState.provider.send("eth_requestAccounts", []);
+        await AppState.provider.send('eth_requestAccounts', []);
         AppState.signer = AppState.provider.getSigner();
         AppState.userAccount = await AppState.signer.getAddress();
+
         const shortAddress = `${AppState.userAccount.substring(0,6)}...${AppState.userAccount.slice(-4)}`;
         document.getElementById('walletAddress').textContent = shortAddress;
         document.getElementById('btnConnect').textContent = 'Connected';
         document.getElementById('btnConnect').style.backgroundColor = '#4CAF50';
         showSuccess('paymentStatus', `Connected: ${shortAddress}`);
+
         window.ethereum.on('accountsChanged', accs => accs.length ? connectWallet() : handleDisconnect());
         window.ethereum.on('chainChanged', () => location.reload());
+
       } catch (err) {
         showError('paymentStatus', err.message);
         document.getElementById('btnConnect').style.backgroundColor = '#f44336';
