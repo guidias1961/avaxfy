@@ -1,0 +1,211 @@
+:root {
+  --avax-red: #E84142;
+  --avax-red-dark: #C5303F;
+  --bg-dark: #121212;
+  --bg-sidebar: #1E1E1E;
+  --text-main: #FFFFFF;
+  --text-secondary: #BBBBBB;
+  --bg-modal: rgba(0, 0, 0, 0.8);
+}
+
+/* Basic reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Layout */
+body {
+  display: flex;
+  height: 100vh;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* Sidebar */
+#sidebar {
+  width: 240px;
+  background: var(--bg-sidebar);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+#sidebar h1 {
+  font-size: 1.5rem;
+  color: var(--avax-red);
+  margin-bottom: 2rem;
+}
+#sidebar nav a {
+  display: block;
+  padding: 10px 0;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+#sidebar nav a:hover {
+  color: var(--avax-red);
+}
+#connectWallet {
+  margin-top: auto;
+  padding: 10px;
+  background: var(--avax-red);
+  border: none;
+  border-radius: 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#connectWallet:hover {
+  background: var(--avax-red-dark);
+}
+#walletAddress {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+/* Main */
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  padding: 20px;
+}
+#searchBar {
+  width: 100%;
+  padding: 10px;
+  background: #282828;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-main);
+}
+#searchBar::placeholder {
+  color: var(--text-secondary);
+}
+#contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Tracks */
+.track {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.track:hover {
+  background: #2A2A2A;
+}
+.track img {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+.track-info span:first-child {
+  font-weight: bold;
+}
+.track-info span:last-child {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Player bar */
+#playerBar {
+  height: 80px;
+  background: var(--bg-sidebar);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+#playerBar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+#playerControls button {
+  background: none;
+  border: none;
+  margin: 0 10px;
+  font-size: 1.2rem;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+#playerControls button:hover {
+  color: var(--avax-red);
+}
+#progress {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  margin: 0 15px;
+}
+#volume {
+  width: 100px;
+}
+
+/* Upload modal */
+#uploadModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-modal);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+#uploadModal.active {
+  display: flex;
+}
+#uploadForm {
+  background: #282828;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+#uploadForm h2 {
+  margin-bottom: 15px;
+  color: var(--avax-red);
+}
+#uploadForm input,
+#uploadForm button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+}
+#uploadForm input {
+  background: #1E1E1E;
+  color: var(--text-main);
+}
+#uploadForm button[type="submit"] {
+  background: var(--avax-red);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#uploadForm button[type="submit"]:hover {
+  background: var(--avax-red-dark);
+}
+#cancelUpload {
+  background: #444;
+  color: var(--text-main);
+  cursor: pointer;
+}
