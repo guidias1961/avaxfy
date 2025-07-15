@@ -2,57 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Avaxfy – Stream Your Music on Avalanche</title>
-  <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!-- Ethers.js -->
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <style>
-    /* RESET & BASE */
+    /* RESET */
     * { margin:0; padding:0; box-sizing:border-box }
-    body { display:flex; height:100vh; font-family:sans-serif; background:#111; color:#eee; overflow:hidden }
+    body { display:flex; height:100vh; font-family:sans-serif; background:#111; color:#eee; }
 
     /* SIDEBAR */
     #sidebar {
-      width:240px; padding:20px;
-      background:rgba(0,0,0,0.8);
-      display:flex; flex-direction:column;
+      width:240px; padding:20px; background:#000;
+      display:flex; flex-direction:column; gap:15px;
     }
+    #sidebar h1 { font-size:1.8rem; margin-bottom:10px }
     #sidebar nav button {
-      background:none; border:none; color:#bbb;
-      padding:10px 0; text-align:left; cursor:pointer;
+      background:none; border:none; color:#aaa;
+      padding:8px 0; text-align:left; cursor:pointer;
+      font-size:1rem;
     }
     #sidebar nav button:hover { color:#e84142 }
 
     /* MAIN */
     #main { flex:1; display:flex; flex-direction:column }
-    header { padding:20px; background:#222 }
-    #contentArea { flex:1; overflow:auto; padding:20px }
+    header { background:#222; padding:15px }
+    header input { width:100%; padding:8px; border:none; border-radius:4px; background:#333; color:#eee }
+    #contentArea { flex:1; background:#121212; padding:20px; overflow:auto }
+
+    /* PLAYBAR HIDDEN */
+    #playerBar { display:none }
 
     /* MODAL BACKDROP */
     .modal-backdrop {
       position:fixed; top:0; left:0; width:100%; height:100%;
-      background:rgba(0,0,0,0.7);
-      display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.7); display:none;
+      align-items:center; justify-content:center;
     }
     .modal-backdrop.active { display:flex }
 
-    /* MODAL BOX */
+    /* MODAL WINDOW */
     .modal {
       background:#222; padding:20px; border-radius:8px;
-      width:300px; display:flex; flex-direction:column; gap:10px;
+      width:320px; display:flex; flex-direction:column; gap:12px;
     }
-    .modal h2 { color:#e84142 }
-    .modal input,
-    .modal button {
+    .modal h2 { color:#e84142; }
+    .modal input, .modal button {
       padding:8px; border:none; border-radius:4px;
+      font-size:1rem;
     }
-    .modal button.confirm { background:#e84142; color:#fff }
-    .modal button.cancel  { background:#444; color:#eee }
-
-    /* PLAYER BAR (escondido p/ foco no modal) */
-    #playerBar { display:none }
+    .modal input { background:#333; color:#eee }
+    .modal button.confirm { background:#e84142; color:#fff; cursor:pointer }
+    .modal button.confirm:hover { background:#b81b23 }
+    .modal button.cancel { background:#444; color:#ccc; cursor:pointer }
   </style>
 </head>
 <body>
@@ -62,8 +64,7 @@
     <nav>
       <button onclick="showSection('home')">Home</button>
       <button onclick="showSection('favorites')">Favorites</button>
-      <!-- BOTÃO UPLOAD -->
-      <button id="btnUpload" onclick="toggleUpload()">Upload</button>
+      <button onclick="toggleUpload()">Upload</button>
     </nav>
     <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
     <span id="walletAddress"></span>
@@ -74,7 +75,8 @@
       <input id="searchBar" placeholder="Search…" oninput="filterTracks()">
     </header>
     <div id="contentArea">
-      <!-- conteúdo de faixas será renderizado aqui -->
+      <!-- conteúdo dinâmico -->
+      <p style="color:#666">Nenhuma faixa carregada.</p>
     </div>
   </div>
 
@@ -92,27 +94,11 @@
     </div>
   </div>
 
-  <!-- NOTE: modais de support não incluídos aqui para focar upload -->
-
   <script type="module">
-    // CONFIG
-    const DEFAULT_SUPPORT_WALLET = '0x730c82D501Ec341E376F95b9B5D48a059dABc218';
-    const SPACE_DID    = 'did:key:z6Mkfzfmr6k4WgvQcFtyKyzsLBGzBLJN2LREYeo4DcmHF4df';
-    const LOGIN_EMAIL  = 'guidias1961@gmail.com';
-
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@storacha/client/dist/index.esm.min.js';
-    let signer, client;
-
-    // inicializa client IPFS
-    (async()=>{
-      client = await createClient();
-      await client.login(LOGIN_EMAIL);
-      await client.setCurrentSpace(SPACE_DID);
-    })();
-
-    // conecta MetaMask
+    // CONFIGURAÇÃO BÁSICA
+    let signer;
     async function connectWallet() {
-      if (!window.ethereum) return alert('Install MetaMask');
+      if (!window.ethereum) { alert('Install MetaMask'); return }
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send('eth_requestAccounts', []);
       signer = provider.getSigner();
@@ -120,25 +106,29 @@
       document.getElementById('walletAddress').textContent = addr;
     }
 
-    // toggle do modal
+    // SEÇÕES E FILTRO (stubs)
+    function showSection(sec) {
+      alert('Show `' + sec + '`'); 
+    }
+    function filterTracks() {
+      console.log('Filtro:', document.getElementById('searchBar').value);
+    }
+
+    // MODAL
     function toggleModal(id, show=true) {
       document.getElementById(id).classList.toggle('active', show);
     }
     function toggleUpload() {
-      if (!signer) { alert('Connect wallet first'); return; }
+      if (!signer) { alert('Connect your wallet first'); return }
       toggleModal('uploadModal', true);
     }
 
-    // stub para uploadTrack
+    // UPLOAD (test alert)
     async function uploadTrack() {
-      alert('Modal is working! Aqui você colocaria sua lógica de upload.');
+      alert('📤 uploadTrack() acionado! O modal está funcionando.');
       toggleModal('uploadModal', false);
     }
-
-    // dummy
-    function showSection(s){ console.log('section',s) }
-    function filterTracks(){}
-
   </script>
+
 </body>
 </html>
